@@ -2,6 +2,9 @@
 const Application = require("../models/Application")
 const Job = require("../models/Job")
 const asyncHandler = require("../utils/asyncHandler")
+const {
+  uploadResumeFile,
+} = require("../utils/cloudinaryUpload");
 
 const STATUSES = ["Applied", "Under Review", "Shortlisted", "Interview", "Selected", "Rejected"]
 
@@ -22,7 +25,15 @@ const applyToJob = asyncHandler(async (req, res) => {
 
   }
 
-  const resumePath = req.file ? `/uploads/resumes/${req.file.filename}` : req.user.resume
+  let resumePath = req.user.resume;
+
+  if (req.file) {
+    const uploadedResume =
+      await uploadResumeFile(req.file);
+
+    resumePath =
+      uploadedResume.secure_url;
+  }
 
   if (!resumePath) {
     return res.status(400).json({

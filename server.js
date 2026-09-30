@@ -71,8 +71,30 @@ const dotenv = require("dotenv");
 dotenv.config({
   path: path.join(__dirname, ".env"),
 });
+console.log("ENV FILE:", path.join(__dirname, ".env"));
+
+console.log("Cloudinary ENV check:");
+console.log(
+  "CLOUD_NAME:",
+  process.env.CLOUDINARY_CLOUD_NAME
+);
+console.log(
+  "API_KEY:",
+  process.env.CLOUDINARY_API_KEY
+    ? "FOUND"
+    : "MISSING"
+);
+console.log(
+  "API_SECRET:",
+  process.env.CLOUDINARY_API_SECRET
+    ? "FOUND"
+    : "MISSING"
+);
 
 const connectDB = require("./config/db");
+const {
+  configureCloudinary,
+} = require("./config/cloudinary");
 
 const {
   notFound,
@@ -224,6 +246,7 @@ const start = async () => {
     }
 
     // Connect MongoDB
+    configureCloudinary();
     await connectDB();
 
     // Start server

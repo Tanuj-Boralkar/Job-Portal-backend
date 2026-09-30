@@ -1,6 +1,10 @@
 
 const User = require("../models/User")
 const asyncHandler = require("../utils/asyncHandler")
+const {
+  uploadProfileImage,
+  uploadResumeFile,
+} = require("../utils/cloudinaryUpload");
 
 const parseSkills = (skills) => {
   if (skills === undefined) return undefined
@@ -39,11 +43,23 @@ const updateProfile = asyncHandler(async (req, res) => {
     user.password = req.body.password
 
   }
-  if (req.files && req.files.profileImage && req.files.profileImage[0]) {
-    user.profileImage = `/uploads/profiles/${req.files.profileImage[0].filename}`
+  if (req.files?.profileImage?.[0]) {
+    const uploadedImage =
+      await uploadProfileImage(
+        req.files.profileImage[0]
+      );
+
+    user.profileImage =
+      uploadedImage.secure_url;
   }
-  if (req.files && req.files.resume && req.files.resume[0]) {
-    user.resume = `/uploads/resumes/${req.files.resume[0].filename}`
+  if (req.files?.resume?.[0]) {
+    const uploadedResume =
+      await uploadResumeFile(
+        req.files.resume[0]
+      );
+
+    user.resume =
+      uploadedResume.secure_url;
   }
 
   const updated = await user.save()
