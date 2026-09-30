@@ -15,25 +15,17 @@ const uploadBuffer = (
 ) =>
   new Promise((resolve, reject) => {
     if (!file?.buffer) {
-      return reject(new Error("No upload data received"));
+      return reject(
+        new Error("No upload data received")
+      );
     }
-
-    const extension = path
-      .extname(file.originalname)
-      .toLowerCase();
 
     const unique = `${Date.now()}-${Math.round(
       Math.random() * 1e9
     )}`;
 
     const publicId =
-      resourceType === "raw"
-        ? `${safeBaseName(
-          file.originalname
-        )}-${unique}${extension}`
-        : `${safeBaseName(
-          file.originalname
-        )}-${unique}`;
+      `${safeBaseName(file.originalname)}-${unique}`;
 
     const stream =
       cloudinary.uploader.upload_stream(
@@ -45,6 +37,11 @@ const uploadBuffer = (
         },
         (error, result) => {
           if (error) {
+            console.error(
+              "Cloudinary upload error:",
+              error
+            );
+
             reject(error);
           } else {
             resolve(result);
@@ -59,16 +56,24 @@ const uploadBuffer = (
     input.pipe(stream);
   });
 
+// ===============================
+// PROFILE IMAGE
+// ===============================
+
 const uploadProfileImage = (file) =>
   uploadBuffer(file, {
     folder: "hiredesk/profile-images",
     resourceType: "image",
   });
 
+// ===============================
+// RESUME
+// ===============================
+
 const uploadResumeFile = (file) =>
   uploadBuffer(file, {
     folder: "hiredesk/resumes",
-    resourceType: "raw",
+    resourceType: "auto",
   });
 
 module.exports = {
